@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORGE RPG — Your Adventure Awaits</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1209;
+    --parchment: #f5eed8;
+    --parchment-dark: #e8ddbf;
+    --ember: #c4420a;
+    --ember-glow: #e8621a;
+    --gold: #c9922a;
+    --gold-light: #e8b84b;
+    --forest: #2d5a27;
+    --stone: #5a5040;
+    --mist: #8a7a6a;
+    --calm-full: #4a9b6f;
+    --calm-mid: #c9922a;
+    --calm-low: #c4420a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* STARFIELD BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 50%, rgba(196,66,10,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(201,146,42,0.06) 0%, transparent 40%),
+      radial-gradient(ellipse at 60% 80%, rgba(45,90,39,0.08) 0%, transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SCREENS */
+  .screen {
+    display: none;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ═══════════════════════════════════
+     SCREEN 1: WELCOME
+  ═══════════════════════════════════ */
+  #screen-welcome {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  .forge-crest {
+    width: 120px;
+    height: 120px;
+    border: 3px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    background: radial-gradient(circle, rgba(201,146,42,0.15) 0%, transparent 70%);
+    box-shadow: 0 0 40px rgba(201,146,42,0.2), inset 0 0 20px rgba(201,146,42,0.05);
+    animation: breathe 4s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { box-shadow: 0 0 40px rgba(201,146,42,0.2), inset 0 0 20px rgba(201,146,42,0.05); }
+    50% { box-shadow: 0 0 70px rgba(201,146,42,0.35), inset 0 0 30px rgba(201,146,42,0.1); }
+  }
+
+  .title-block { max-width: 600px; }
+
+  h1.game-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    font-weight: 900;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-shadow: 0 0 40px rgba(232,184,75,0.3);
+  }
+
+  .game-subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.7rem, 2vw, 0.9rem);
+    color: var(--mist);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+  }
+
+  .tagline {
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--parchment-dark);
+    max-width: 420px;
+    line-height: 1.6;
+    margin: 0 auto;
+  }
+
+  .lantern-check {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,146,42,0.3);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    max-width: 480px;
+    width: 100%;
+  }
+
+  .lantern-check h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .lantern-check p {
+    font-size: 1rem;
+    color: var(--parchment-dark);
+    margin-bottom: 1rem;
+    font-style: italic;
+  }
+
+  .lantern-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .lantern-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid rgba(201,146,42,0.4);
+    background: transparent;
+    color: var(--parchment);
+    font-size: 1.1rem;
+    font-family: 'Cinzel', serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .lantern-btn:hover { border-color: var(--gold); background: rgba(201,146,42,0.1); transform: scale(1.1); }
+  .lantern-btn.selected { border-color: var(--gold-light); background: rgba(201,146,42,0.2); }
+  .lantern-btn .lantern-emoji { font-size: 1.3rem; }
+  .lantern-btn .lantern-num { font-size: 0.65rem; color: var(--mist); }
+
+  .begin-btn {
+    background: linear-gradient(135deg, var(--ember) 0%, var(--ember-glow) 100%);
+    color: var(--parchment);
+    border: none;
+    padding: 1rem 3rem;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 20px rgba(196,66,10,0.3);
+    text-transform: uppercase;
+  }
+
+  .begin-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(196,66,10,0.5);
+  }
+
+  /* ═══════════════════════════════════
+     SCREEN 2: CHOOSE ARCHETYPE
+  ═══════════════════════════════════ */
+  #screen-archetype {
+    padding: 2rem;
+    align-items: center;
+  }
+
+  .screen-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    width: 100%;
+  }
+
+  .screen-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.6rem, 4vw, 2.5rem);
+    color: var(--gold-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .screen-header p {
+    font-style: italic;
+    color: var(--mist);
+    font-size: 1.05rem;
+  }
+
+  .archetypes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+    max-width: 900px;
+    width: 100%;
+  }
+
+  .archetype-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(201,146,42,0.2);
+    border-radius: 10px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .archetype-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 10px;
+  }
+
+  .archetype-card[data-archetype="guardian"]::before { background: radial-gradient(circle at top left, rgba(90,80,64,0.3), transparent 60%); }
+  .archetype-card[data-archetype="seeker"]::before { background: radial-gradient(circle at top left, rgba(45,90,39,0.3), transparent 60%); }
+  .archetype-card[data-archetype="trickster"]::before { background: radial-gradient(circle at top left, rgba(196,66,10,0.2), transparent 60%); }
+  .archetype-card[data-archetype="healer"]::before { background: radial-gradient(circle at top left, rgba(74,155,111,0.25), transparent 60%); }
+  .archetype-card[data-archetype="scholar"]::before { background: radial-gradient(circle at top left, rgba(201,146,42,0.2), transparent 60%); }
+
+  .archetype-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+  .archetype-card:hover::before { opacity: 1; }
+  .archetype-card.selected { border-color: var(--gold-light); border-width: 2px; }
+  .archetype-card.selected::before { opacity: 1; }
+
+  .archetype-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+  .archetype-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.2rem;
+    color: var(--gold-light);
+    margin-bottom: 0.25rem;
+  }
+
+  .archetype-motto {
+    font-style: italic;
+    color: var(--mist);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .archetype-desc {
+    font-size: 0.95rem;
+    color: var(--parchment-dark);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .heart-mini {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .heart-pip {
+    font-size: 0.7rem;
+    background: rgba(201,146,42,0.15);
+    border: 1px solid rgba(201,146,42,0.3);
+    border-radius: 3px;
+    padding: 0.2rem 0.4rem;
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
+  }
+
+  /* ═══════════════════════════════════
+     SCREEN 3: NAME YOUR CHARACTER
+  ═══════════════════════════════════ */
+  #screen-name {
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    gap: 2rem;
+    text-align: center;
+  }
+
+  .chosen-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,146,42,0.3);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+  }
+
+  .chosen-icon { font-size: 2.5rem; }
+  .chosen-text { text-align: left; }
+  .chosen-text strong { font-family: 'Cinzel', serif; color: var(--gold-light); display: block; }
+  .chosen-text span { font-style: italic; color: var(--mist); font-size: 0.9rem; }
+
+  .name-form { max-width: 400px; width: 100%; }
+
+  .name-form label {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    text-align: left;
+  }
+
+  .name-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,146,42,0.4);
+    border-radius: 6px;
+    padding: 0.9rem 1.2rem;
+    color: var(--parchment);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.4rem;
+    text-align: center;
+    letter-spacing: 0.05em;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .name-input:focus { border-color: var(--gold-light); }
+  .name-input::placeholder { color: var(--stone); font-style: italic; }
+
+  .name-hint {
+    font-size: 0.85rem;
+    font-style: italic;
+    color: var(--mist);
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+
+  /* ═══════════════════════════════════
+     SCREEN 4: CHARACTER SHEET (MAIN)
+  ═══════════════════════════════════ */
+  #screen-sheet {
+    padding: 1.5rem;
+    align-items: center;
+    gap: 1.2rem;
+  }
+
+  .sheet-header {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .character-identity {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .char-icon { font-size: 2.8rem; }
+
+  .char-name {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    color: var(--gold-light);
+    line-height: 1;
+  }
+
+  .char-archetype {
+    font-style: italic;
+    color: var(--mist);
+    font-size: 0.9rem;
+  }
+
+  .session-info {
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--mist);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.05em;
+  }
+
+  /* CALM POINTS */
+  .calm-section {
+    width: 100%;
+    max-width: 700px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,146,42,0.25);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .calm-track {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .calm-pip {
+    flex: 1;
+    height: 36px;
+    border-radius: 4px;
+    border: 2px solid rgba(74,155,111,0.4);
+    background: rgba(74,155,111,0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .calm-pip.filled { background: var(--calm-full); border-color: var(--calm-full); box-shadow: 0 0 10px rgba(74,155,111,0.4); }
+  .calm-pip.mid { background: var(--calm-mid); border-color: var(--calm-mid); box-shadow: 0 0 10px rgba(201,146,42,0.4); }
+  .calm-pip.low { background: var(--calm-low); border-color: var(--calm-low); box-shadow: 0 0 10px rgba(196,66,10,0.4); }
+  .calm-pip:hover { transform: scaleY(1.1); }
+
+  .calm-status {
+    font-style: italic;
+    color: var(--mist);
+    font-size: 0.9rem;
+  }
+
+  .calm-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .calm-btn {
+    padding: 0.4rem 0.9rem;
+    border-radius: 4px;
+    border: 1px solid;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+  }
+
+  .calm-btn.lose { border-color: var(--ember); color: var(--ember); }
+  .calm-btn.lose:hover { background: rgba(196,66,10,0.2); }
+  .calm-btn.gain { border-color: var(--calm-full); color: var(--calm-full); }
+  .calm-btn.gain:hover { background: rgba(74,155,111,0.2); }
+  .calm-btn.reset { border-color: var(--mist); color: var(--mist); }
+  .calm-btn.reset:hover { background: rgba(138,122,106,0.2); }
+
+  /* HEART ATTRIBUTES */
+  .heart-section {
+    width: 100%;
+    max-width: 700px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,146,42,0.25);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .heart-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.6rem;
+  }
+
+  @media (max-width: 500px) {
+    .heart-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .heart-attr {
+    text-align: center;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(201,146,42,0.15);
+    border-radius: 8px;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .heart-letter {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+
+  .heart-name {
+    font-size: 0.65rem;
+    color: var(--mist);
+    letter-spacing: 0.08em;
+    margin: 0.2rem 0;
+    text-transform: uppercase;
+  }
+
+  .heart-score {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--parchment);
+  }
+
+  .heart-dots {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 0.3rem;
+  }
+
+  .heart-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(201,146,42,0.3);
+  }
+  .heart-dot.filled { background: var(--gold); }
+
+  /* COPING STRATEGIES */
+  .coping-section {
+    width: 100%;
+    max-width: 700px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,146,42,0.25);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .coping-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .coping-card {
+    border: 1px solid rgba(201,146,42,0.2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .coping-card:hover { border-color: var(--gold); background: rgba(201,146,42,0.08); }
+  .coping-card.active { border-color: var(--calm-full); background: rgba(74,155,111,0.12); }
+
+  .coping-card .coping-icon { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
+  .coping-card .coping-name { font-family: 'Cinzel', serif; font-size: 0.7rem; color: var(--gold); letter-spacing: 0.05em; display: block; margin-bottom: 0.2rem; }
+  .coping-card .coping-real { font-style: italic; font-size: 0.75rem; color: var(--mist); display: block; }
+
+  /* DICE ROLLER */
+  .dice-section {
+    width: 100%;
+    max-width: 700px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,146,42,0.25);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .dice-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .attr-select {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,146,42,0.3);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    color: var(--parchment);
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    outline: none;
+    cursor: pointer;
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .roll-btn {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    color: var(--ink);
+    border: none;
+    padding: 0.6rem 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .roll-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(201,146,42,0.4); }
+  .roll-btn:active { transform: translateY(1px); }
+
+  .dice-result {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+    min-height: 60px;
+  }
+
+  .die-display {
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold-light);
+    background: rgba(201,146,42,0.1);
+    transition: all 0.3s;
+  }
+
+  .die-display.rolling { animation: rollDice 0.4s ease-out; }
+
+  @keyframes rollDice {
+    0% { transform: rotate(-15deg) scale(0.8); opacity: 0.5; }
+    50% { transform: rotate(10deg) scale(1.1); }
+    100% { transform: rotate(0deg) scale(1); opacity: 1; }
+  }
+
+  .result-breakdown {
+    font-size: 1rem;
+    color: var(--parchment-dark);
+  }
+
+  .result-total {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .result-total.success { color: var(--calm-full); }
+  .result-total.partial { color: var(--calm-mid); }
+  .result-total.fail { color: var(--calm-low); }
+
+  .result-verdict {
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+
+  .result-verdict.success { color: var(--calm-full); }
+  .result-verdict.partial { color: var(--calm-mid); }
+  .result-verdict.fail { color: var(--calm-low); }
+
+  /* GROWTH STORY */
+  .growth-section {
+    width: 100%;
+    max-width: 700px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,146,42,0.25);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .growth-textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,146,42,0.25);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    color: var(--parchment);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    font-style: italic;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .growth-textarea:focus { border-color: var(--gold); }
+  .growth-textarea::placeholder { color: var(--stone); }
+
+  /* NAV BUTTONS */
+  .nav-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-bottom: 2rem;
+  }
+
+  .nav-btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: 4px;
+    border: 1px solid rgba(201,146,42,0.4);
+    background: transparent;
+    color: var(--parchment-dark);
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .nav-btn:hover { border-color: var(--gold); color: var(--gold-light); background: rgba(201,146,42,0.08); }
+  .nav-btn.primary { background: linear-gradient(135deg, var(--ember), var(--ember-glow)); border-color: var(--ember); color: var(--parchment); }
+  .nav-btn.primary:hover { box-shadow: 0 4px 15px rgba(196,66,10,0.4); }
+
+  /* DIVIDER */
+  .rune-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 700px;
+    opacity: 0.3;
+  }
+  .rune-divider::before, .rune-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gold);
+  }
+  .rune-divider span { color: var(--gold); font-size: 0.8rem; letter-spacing: 0.2em; white-space: nowrap; }
+
+  /* FADE IN */
+  .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(26,18,9,0.95);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: var(--gold-light);
+    letter-spacing: 0.1em;
+    transition: transform 0.3s;
+    z-index: 100;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* SAFETY BANNER */
+  .safety-banner {
+    width: 100%;
+    max-width: 700px;
+    background: rgba(196,66,10,0.08);
+    border: 1px solid rgba(196,66,10,0.3);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--parchment-dark);
+  }
+
+  .safety-banner .x-card-display {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--ember);
+    border: 2px solid var(--ember);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .safety-banner .x-card-display:hover { background: rgba(196,66,10,0.2); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SCREEN 1: WELCOME ═══════════════ -->
+<div id="screen-welcome" class="screen active fade-in">
+  <div class="forge-crest">⚔️</div>
+
+  <div class="title-block">
+    <h1 class="game-title">FORGE</h1>
+    <div class="game-subtitle">Fantasy Outcomes for Relationships, Growth &amp; Empowerment</div>
+  </div>
+
+  <p class="tagline">"Every hero you play teaches you something about the hero you already are."</p>
+
+  <div class="lantern-check">
+    <h3>🏮 The Lantern Check-In</h3>
+    <p>How are you feeling right now? (No wrong answer — just tap one.)</p>
+    <div class="lantern-buttons">
+      <button class="lantern-btn" onclick="selectLantern(this, 1)">
+        <span class="lantern-emoji">😔</span>
+        <span class="lantern-num">1</span>
+      </button>
+      <button class="lantern-btn" onclick="selectLantern(this, 2)">
+        <span class="lantern-emoji">😟</span>
+        <span class="lantern-num">2</span>
+      </button>
+      <button class="lantern-btn" onclick="selectLantern(this, 3)">
+        <span class="lantern-emoji">😐</span>
+        <span class="lantern-num">3</span>
+      </button>
+      <button class="lantern-btn" onclick="selectLantern(this, 4)">
+        <span class="lantern-emoji">🙂</span>
+        <span class="lantern-num">4</span>
+      </button>
+      <button class="lantern-btn" onclick="selectLantern(this, 5)">
+        <span class="lantern-emoji">😄</span>
+        <span class="lantern-num">5</span>
+      </button>
+    </div>
+  </div>
+
+  <button class="begin-btn" onclick="goTo('screen-archetype')">Begin Your Adventure →</button>
+
+  <p style="font-size:0.8rem; color: var(--stone); font-style:italic; max-width:400px; text-align:center;">
+    Your social worker is here with you. Remember: the X-Card is always available to pause the game.
+  </p>
+</div>
+
+<!-- ═══════════════ SCREEN 2: CHOOSE ARCHETYPE ═══════════════ -->
+<div id="screen-archetype" class="screen">
+  <div class="screen-header fade-in">
+    <h2>Who Is Your Hero?</h2>
+    <p>Choose the archetype that calls to you — someone you are, or someone you want to become.</p>
+  </div>
+
+  <div class="archetypes-grid fade-in">
+
+    <div class="archetype-card" data-archetype="guardian" onclick="selectArchetype(this)">
+      <div class="archetype-icon">🛡️</div>
+      <div class="archetype-name">The Guardian</div>
+      <div class="archetype-motto">"I will keep them safe."</div>
+      <div class="archetype-desc">Loyal, brave, and fiercely protective. You put others first — but your journey will teach you to let others care for you too.</div>
+      <div class="heart-mini">
+        <span class="heart-pip">Resolve ●●●●</span>
+        <span class="heart-pip">Teamwork ●●●●</span>
+        <span class="heart-pip">Agility ●●●</span>
+      </div>
+    </div>
+
+    <div class="archetype-card" data-archetype="seeker" onclick="selectArchetype(this)">
+      <div class="archetype-icon">🔍</div>
+      <div class="archetype-name">The Seeker</div>
+      <div class="archetype-motto">"There's always more to discover."</div>
+      <div class="archetype-desc">Curious, observant, and brilliant. You notice everything — but your journey will teach you that connection matters as much as knowledge.</div>
+      <div class="heart-mini">
+        <span class="heart-pip">Head ●●●●</span>
+        <span class="heart-pip">Empathy ●●●</span>
+        <span class="heart-pip">Resolve ●●●</span>
+      </div>
+    </div>
+
+    <div class="archetype-card" data-archetype="trickster" onclick="selectArchetype(this)">
+      <div class="archetype-icon">🎭</div>
+      <div class="archetype-name">The Trickster</div>
+      <div class="archetype-motto">"There's always another way."</div>
+      <div class="archetype-desc">Creative, quick, and unpredictable. You make people laugh — but your journey will teach you the power of being genuinely seen.</div>
+      <div class="heart-mini">
+        <span class="heart-pip">Agility ●●●●</span>
+        <span class="heart-pip">Head ●●●</span>
+        <span class="heart-pip">Empathy ●●●</span>
+      </div>
+    </div>
+
+    <div class="archetype-card" data-archetype="healer" onclick="selectArchetype(this)">
+      <div class="archetype-icon">💚</div>
+      <div class="archetype-name">The Healer</div>
+      <div class="archetype-motto">"Let me help."</div>
+      <div class="archetype-desc">Empathic, nurturing, and perceptive. You feel everything — but your journey will teach you that your own needs matter too.</div>
+      <div class="heart-mini">
+        <span class="heart-pip">Empathy ●●●●●</span>
+        <span class="heart-pip">Teamwork ●●●</span>
+        <span class="heart-pip">Head ●●●</span>
+      </div>
+    </div>
+
+    <div class="archetype-card" data-archetype="scholar" onclick="selectArchetype(this)">
+      <div class="archetype-icon">📚</div>
+      <div class="archetype-name">The Scholar</div>
+      <div class="archetype-motto">"Knowledge is power."</div>
+      <div class="archetype-desc">Strategic, prepared, and systematic. You always have a plan — but your journey will teach you to trust others when you don't.</div>
+      <div class="heart-mini">
+        <span class="heart-pip">Head ●●●●●</span>
+        <span class="heart-pip">Resolve ●●●</span>
+        <span class="heart-pip">Empathy ●●</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav-row fade-in">
+    <button class="nav-btn" onclick="goTo('screen-welcome')">← Back</button>
+    <button class="nav-btn primary" id="archetype-next" onclick="goToName()" disabled style="opacity:0.5">Choose Your Hero →</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN 3: NAME YOUR CHARACTER ═══════════════ -->
+<div id="screen-name" class="screen">
+  <div class="screen-header fade-in">
+    <h2>Name Your Hero</h2>
+    <p>This character is yours. Give them a name that feels right.</p>
+  </div>
+
+  <div class="chosen-display fade-in" id="chosen-display">
+    <div class="chosen-icon" id="chosen-icon">🛡️</div>
+    <div class="chosen-text">
+      <strong id="chosen-archetype-name">The Guardian</strong>
+      <span id="chosen-motto">"I will keep them safe."</span>
+    </div>
+  </div>
+
+  <div class="name-form fade-in">
+    <label for="char-name-input">Your Character's Name</label>
+    <input type="text" id="char-name-input" class="name-input" placeholder="e.g. Thornwood, Lyra, Kael..." maxlength="30">
+    <p class="name-hint">Fantasy name, real name, nickname — anything that feels like you.</p>
+  </div>
+
+  <div class="nav-row fade-in">
+    <button class="nav-btn" onclick="goTo('screen-archetype')">← Back</button>
+    <button class="nav-btn primary" onclick="createCharacter()">Forge My Hero →</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SCREEN 4: CHARACTER SHEET ═══════════════ -->
+<div id="screen-sheet" class="screen">
+
+  <!-- HEADER -->
+  <div class="sheet-header fade-in">
+    <div class="character-identity">
+      <div class="char-icon" id="sheet-icon">🛡️</div>
+      <div>
+        <div class="char-name" id="sheet-name">Thornwood</div>
+        <div class="char-archetype" id="sheet-archetype">The Guardian</div>
+      </div>
+    </div>
+    <div class="session-info">
+      <div id="session-display">Session 1</div>
+      <div style="font-size:0.7rem; margin-top:0.2rem;">Module: The Bridge Between Worlds</div>
+    </div>
+  </div>
+
+  <!-- SAFETY BANNER -->
+  <div class="safety-banner fade-in">
+    <div class="x-card-display" onclick="xCardActivate()" title="Tap to pause the game">✕</div>
+    <div>
+      <strong style="font-family:'Cinzel',serif; font-size:0.8rem; color:var(--ember);">X-Card:</strong>
+      <span style="font-size:0.85rem;"> Tap the X at any time to pause the game — no explanation needed.</span>
+    </div>
+  </div>
+
+  <!-- CALM POINTS -->
+  <div class="calm-section fade-in">
+    <div class="section-label">🏮 Calm Points</div>
+    <div class="calm-track" id="calm-track"></div>
+    <div class="calm-status" id="calm-status">You are focused and ready.</div>
+    <div class="calm-controls">
+      <button class="calm-btn lose" onclick="adjustCalm(-1)">− Lose 1 Calm</button>
+      <button class="calm-btn gain" onclick="adjustCalm(1)">+ Gain 1 Calm</button>
+      <button class="calm-btn reset" onclick="resetCalm()">↺ Reset to 3</button>
+    </div>
+  </div>
+
+  <div class="rune-divider"><span>⚔ ✦ ⚔</span></div>
+
+  <!-- HEART ATTRIBUTES -->
+  <div class="heart-section fade-in">
+    <div class="section-label">💛 HEART Attributes</div>
+    <div class="heart-grid" id="heart-grid"></div>
+  </div>
+
+  <div class="rune-divider"><span>⚔ ✦ ⚔</span></div>
+
+  <!-- DICE ROLLER -->
+  <div class="dice-section fade-in">
+    <div class="section-label">🎲 Roll the Dice</div>
+    <div class="dice-row">
+      <select class="attr-select" id="attr-select">
+        <option value="">Choose an attribute...</option>
+        <option value="H">Head</option>
+        <option value="E">Empathy</option>
+        <option value="A">Agility</option>
+        <option value="R">Resolve</option>
+        <option value="T">Teamwork</option>
+      </select>
+      <select class="attr-select" id="diff-select" style="min-width:120px;">
+        <option value="12">Medium (12)</option>
+        <option value="8">Easy (8)</option>
+        <option value="16">Hard (16)</option>
+        <option value="20">Very Hard (20)</option>
+      </select>
+      <button class="roll-btn" onclick="rollDice()">Roll d20</button>
+    </div>
+    <div class="dice-result" id="dice-result">
+      <div class="die-display" id="die-display">?</div>
+      <div id="result-text" style="color:var(--mist); font-style:italic;">Choose an attribute and roll!</div>
+    </div>
+  </div>
+
+  <div class="rune-divider"><span>⚔ ✦ ⚔</span></div>
+
+  <!-- COPING STRATEGIES -->
+  <div class="coping-section fade-in">
+    <div class="section-label">🌿 Coping Strategies</div>
+    <div style="font-size:0.85rem; color:var(--mist); font-style:italic; margin-bottom:0.75rem;">Your character's tools for staying calm. Tap one when you use it — gain 1 Calm Point.</div>
+    <div class="coping-grid" id="coping-grid"></div>
+  </div>
+
+  <div class="rune-divider"><span>⚔ ✦ ⚔</span></div>
+
+  <!-- GROWTH STORY -->
+  <div class="growth-section fade-in">
+    <div class="section-label">📖 My Growth Story</div>
+    <div style="font-size:0.85rem; color:var(--mist); font-style:italic; margin-bottom:0.75rem;">What did your character learn today? Write it here after your session.</div>
+    <textarea class="growth-textarea" id="growth-story" placeholder="Today, my character learned that..."></textarea>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav-row fade-in">
+    <button class="nav-btn" onclick="goTo('screen-welcome')">🏠 Start Over</button>
+    <button class="nav-btn" onclick="saveCharacter()">💾 Save My Character</button>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════
+// DATA
+// ═══════════════════════════════════
+const ARCHETYPES = {
+  guardian: {
+    icon: '🛡️',
+    name: 'The Guardian',
+    motto: '"I will keep them safe."',
+    heart: { H: 2, E: 2, A: 3, R: 4, T: 4 },
+    calmMax: 5,
+    special: 'Stand Firm — prevent a companion from losing Calm Points once per session'
+  },
+  seeker: {
+    icon: '🔍',
+    name: 'The Seeker',
+    motto: '"There\'s always more to discover."',
+    heart: { H: 4, E: 3, A: 2, R: 3, T: 2 },
+    calmMax: 3,
+    special: 'Read the Room — Advantage on Empathy checks to understand NPC emotions'
+  },
+  trickster: {
+    icon: '🎭',
+    name: 'The Trickster',
+    motto: '"There\'s always another way."',
+    heart: { H: 3, E: 3, A: 4, R: 2, T: 2 },
+    calmMax: 3,
+    special: 'Unexpected Solution — bypass one obstacle creatively once per session'
+  },
+  healer: {
+    icon: '💚',
+    name: 'The Healer',
+    motto: '"Let me help."',
+    heart: { H: 3, E: 5, A: 1, R: 2, T: 3 },
+    calmMax: 4,
+    special: 'Restore — help a companion regain 2 Calm Points (once per session)'
+  },
+  scholar: {
+    icon: '📚',
+    name: 'The Scholar',
+    motto: '"Knowledge is power."',
+    heart: { H: 5, E: 2, A: 2, R: 3, T: 2 },
+    calmMax: 3,
+    special: 'Prepared — declare prior research, gain Advantage on a Head check once per session'
+  }
+};
+
+const COPING = [
+  { icon: '🌬️', name: 'Breath of the Wind', real: 'Deep breathing' },
+  { icon: '👁️', name: 'Reading the Room', real: 'Grounding (5-4-3-2-1)' },
+  { icon: '💬', name: 'The Inner Voice', real: 'Positive self-talk' },
+  { icon: '🤝', name: 'Call to Companions', real: 'Seeking support' },
+  { icon: '🚶', name: 'Warrior\'s Walk', real: 'Movement break' },
+  { icon: '⏸️', name: 'The Still Moment', real: 'Mindful pause' },
+];
+
+const HEART_LABELS = { H: 'Head', E: 'Empathy', A: 'Agility', R: 'Resolve', T: 'Teamwork' };
+
+const CALM_STATUSES = [
+  { text: '🚨 Your character needs help right now. Ask your social worker.', cls: 'low' },
+  { text: '😰 Your character is overwhelmed. Use a coping strategy.', cls: 'low' },
+  { text: '😟 Your character is stressed. Disadvantage on some rolls.', cls: 'mid' },
+  { text: '😐 Your character is worried but holding on.', cls: '' },
+  { text: '🙂 Your character is steady and focused.', cls: '' },
+  { text: '✨ Your character is calm, focused, and ready for anything.', cls: '' },
+];
+
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+let state = {
+  lantern: null,
+  archetype: null,
+  charName: '',
+  calm: 3,
+  growthStory: '',
+  usedCoping: new Set()
+};
+
+// ═══════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const screen = document.getElementById(screenId);
+  screen.classList.add('active');
+  screen.querySelectorAll('.fade-in').forEach(el => {
+    el.style.animation = 'none';
+    el.offsetHeight;
+    el.style.animation = '';
+  });
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════
+// LANTERN CHECK-IN
+// ═══════════════════════════════════
+function selectLantern(btn, val) {
+  document.querySelectorAll('.lantern-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.lantern = val;
+  if (val <= 2) {
+    showToast('Your social worker can see your check-in. It\'s okay to have hard days. 💙');
+  }
+}
+
+// ═══════════════════════════════════
+// ARCHETYPE SELECTION
+// ═══════════════════════════════════
+function selectArchetype(card) {
+  document.querySelectorAll('.archetype-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  state.archetype = card.dataset.archetype;
+  const btn = document.getElementById('archetype-next');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+}
+
+function goToName() {
+  if (!state.archetype) return;
+  const a = ARCHETYPES[state.archetype];
+  document.getElementById('chosen-icon').textContent = a.icon;
+  document.getElementById('chosen-archetype-name').textContent = a.name;
+  document.getElementById('chosen-motto').textContent = a.motto;
+  goTo('screen-name');
+}
+
+// ═══════════════════════════════════
+// CHARACTER CREATION
+// ═══════════════════════════════════
+function createCharacter() {
+  const nameVal = document.getElementById('char-name-input').value.trim();
+  state.charName = nameVal || 'Unnamed Hero';
+  state.calm = 3;
+  buildSheet();
+  goTo('screen-sheet');
+  showToast(`Welcome, ${state.charName}! Your adventure begins. 🎲`);
+}
+
+function buildSheet() {
+  const a = ARCHETYPES[state.archetype];
+
+  document.getElementById('sheet-icon').textContent = a.icon;
+  document.getElementById('sheet-name').textContent = state.charName;
+  document.getElementById('sheet-archetype').textContent = a.name;
+
+  buildCalmTrack();
+  buildHeartGrid(a);
+  buildCopingGrid();
+}
+
+// ═══════════════════════════════════
+// CALM POINTS
+// ═══════════════════════════════════
+function buildCalmTrack() {
+  const a = ARCHETYPES[state.archetype];
+  const max = a.calmMax;
+  const track = document.getElementById('calm-track');
+  track.innerHTML = '';
+
+  for (let i = 1; i <= max; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'calm-pip';
+    pip.title = `Calm Point ${i}`;
+    if (i <= state.calm) {
+      if (state.calm <= 1) pip.className += ' low';
+      else if (state.calm <= 2) pip.className += ' mid';
+      else pip.className += ' filled';
+    }
+    pip.onclick = () => { state.calm = i; buildCalmTrack(); };
+    track.appendChild(pip);
+  }
+
+  updateCalmStatus();
+}
+
+function updateCalmStatus() {
+  const status = document.getElementById('calm-status');
+  const idx = Math.min(state.calm, CALM_STATUSES.length - 1);
+  status.textContent = CALM_STATUSES[idx].text;
+  status.style.color = state.calm <= 1 ? 'var(--calm-low)' :
+                        state.calm <= 2 ? 'var(--calm-mid)' : 'var(--parchment-dark)';
+}
+
+function adjustCalm(delta) {
+  const a = ARCHETYPES[state.archetype];
+  state.calm = Math.max(0, Math.min(a.calmMax, state.calm + delta));
+  buildCalmTrack();
+  if (state.calm === 0) {
+    showToast('Your character needs support. Tell your social worker. 💙');
+  } else if (delta > 0) {
+    showToast('+1 Calm Point restored! ✨');
+  } else {
+    showToast('Lost 1 Calm Point. Use a coping strategy to recover.');
+  }
+}
+
+function resetCalm() {
+  state.calm = 3;
+  buildCalmTrack();
+  showToast('Calm Points reset to 3.');
+}
+
+// ═══════════════════════════════════
+// HEART ATTRIBUTES
+// ═══════════════════════════════════
+function buildHeartGrid(a) {
+  const grid = document.getElementById('heart-grid');
+  grid.innerHTML = '';
+
+  Object.entries(a.heart).forEach(([letter, score]) => {
+    const attr = document.createElement('div');
+    attr.className = 'heart-attr';
+
+    const dots = Array.from({length: 5}, (_, i) =>
+      `<div class="heart-dot ${i < score ? 'filled' : ''}"></div>`
+    ).join('');
+
+    attr.innerHTML = `
+      <div class="heart-letter">${letter}</div>
+      <div class="heart-name">${HEART_LABELS[letter]}</div>
+      <div class="heart-score">${score}</div>
+      <div class="heart-dots">${dots}</div>
+    `;
+    grid.appendChild(attr);
+  });
+}
+
+// ═══════════════════════════════════
+// COPING STRATEGIES
+// ═══════════════════════════════════
+function buildCopingGrid() {
+  const grid = document.getElementById('coping-grid');
+  grid.innerHTML = '';
+
+  COPING.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'coping-card';
+    card.dataset.idx = i;
+    card.innerHTML = `
+      <span class="coping-icon">${c.icon}</span>
+      <span class="coping-name">${c.name}</span>
+      <span class="coping-real">${c.real}</span>
+    `;
+    card.onclick = () => useCoping(card, i, c);
+    grid.appendChild(card);
+  });
+}
+
+function useCoping(card, idx, c) {
+  if (state.usedCoping.has(idx)) {
+    state.usedCoping.delete(idx);
+    card.classList.remove('active');
+    return;
+  }
+  state.usedCoping.add(idx);
+  card.classList.add('active');
+  adjustCalm(1);
+  showToast(`${c.icon} ${c.name} used! +1 Calm Point gained.`);
+}
+
+// ═══════════════════════════════════
+// DICE ROLLER
+// ═══════════════════════════════════
+function rollDice() {
+  const attrKey = document.getElementById('attr-select').value;
+  const difficulty = parseInt(document.getElementById('diff-select').value);
+
+  if (!attrKey) {
+    showToast('Choose an attribute first!');
+    return;
+  }
+
+  const a = ARCHETYPES[state.archetype];
+  const attrScore = a.heart[attrKey];
+  const roll = Math.floor(Math.random() * 20) + 1;
+  const total = roll + attrScore;
+
+  const dieEl = document.getElementById('die-display');
+  dieEl.textContent = roll;
+  dieEl.classList.remove('rolling');
+  void dieEl.offsetWidth;
+  dieEl.classList.add('rolling');
+
+  let verdict, cls;
+  if (total >= difficulty) {
+    verdict = '✨ Success! Your character achieves their goal.';
+    cls = 'success';
+  } else if (total >= difficulty - 3) {
+    verdict = '⚡ Partial success — you get there, but with a complication.';
+    cls = 'partial';
+  } else {
+    verdict = '💭 Not this time — but failure always teaches something. What did you learn?';
+    cls = 'fail';
+  }
+
+  const resultDiv = document.getElementById('result-text');
+  resultDiv.innerHTML = `
+    <div>
+      <span style="color:var(--mist); font-size:0.9rem;">d20 (${roll}) + ${HEART_LABELS[attrKey]} (${attrScore}) = </span>
+      <span class="result-total ${cls}">${total}</span>
+      <span style="color:var(--mist); font-size:0.85rem;"> vs. difficulty ${difficulty}</span>
+    </div>
+    <div class="result-verdict ${cls}">${verdict}</div>
+  `;
+
+  if (total < difficulty - 3) {
+    adjustCalm(-1);
+  }
+}
+
+// ═══════════════════════════════════
+// X-CARD
+// ═══════════════════════════════════
+function xCardActivate() {
+  showToast('✕ Game paused. Your social worker will check in with you. You did the right thing. 💙', 5000);
+}
+
+// ═══════════════════════════════════
+// SAVE CHARACTER
+// ═══════════════════════════════════
+function saveCharacter() {
+  const growth = document.getElementById('growth-story').value;
+  state.growthStory = growth;
+
+  try {
+    localStorage.setItem('forge-character', JSON.stringify(state));
+    showToast('💾 Character saved! See you next session, ' + state.charName + '.');
+  } catch(e) {
+    showToast('Character notes captured for this session.');
+  }
+}
+
+// ═══════════════════════════════════
+// TOAST
+// ═══════════════════════════════════
+function showToast(msg, duration = 3000) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+// ═══════════════════════════════════
+// LOAD SAVED CHARACTER
+// ═══════════════════════════════════
+window.onload = () => {
+  try {
+    const saved = localStorage.getItem('forge-character');
+    if (saved) {
+      const s = JSON.parse(saved);
+      if (s.archetype && s.charName) {
+        state = { ...s, usedCoping: new Set() };
+      }
+    }
+  } catch(e) {}
+};
+</script>
+</body>
+</html>
